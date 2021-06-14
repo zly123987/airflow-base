@@ -30,7 +30,6 @@ services:
         build:
             context: .
             dockerfile: ./compose/webserver/Dockerfile
-        restart: always
         depends_on:
             - postgres
             - redis
