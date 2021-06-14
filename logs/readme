@@ -1,0 +1,2 @@
+This placeholder exists to let the logs folder be accessible from this location on the host,
+and have it be writeable from the containers, without overriding permissions.

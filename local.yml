@@ -1,0 +1,91 @@
+version: '3'
+
+volumes:
+    crawl_data: {}
+    mongo_data_local: {}
+    npm_crawl_data: {}
+    postgres_data_local: {}
+
+services:
+    redis:
+        image: redis:3.2.7
+        ports:
+            - "6379:6379"
+
+    postgres:
+        image: postgres:9.6-alpine
+        environment:
+            - POSTGRES_USER=airflow
+            - POSTGRES_PASSWORD=airflow
+            - POSTGRES_DB=airflow
+        volumes:
+            - postgres_data_local:/var/lib/postgresql/data
+        ports:
+            - "5433:5432"
+
+    webserver:
+        env_file:
+            - .envs/common/airflow.env
+            - .envs/common/webserver.env
+        build:
+            context: .
+            dockerfile: ./compose/webserver/Dockerfile
+        restart: always
+        depends_on:
+            - postgres
+            - redis
+        volumes:
+            - ./dags:${AIRFLOW_HOME}/dags
+            - ./logs:${AIRFLOW_HOME}/logs
+        ports:
+            - "8082:8080"
+        command: webserver
+        healthcheck:
+            test: ["CMD-SHELL", "[ -f /usr/common/airflow/airflow-webserver.pid ]"]
+            interval: 30s
+            timeout: 30s
+            retries: 3
+
+    flower:
+        env_file:
+            - .envs/common/flower.env
+        image: puckel/docker-airflow:1.10.0-4
+        restart: always
+        depends_on:
+            - redis
+        ports:
+            - "5555:5555"
+        command: flower
+
+    scheduler:
+        env_file:
+            - .envs/common/airflow.env
+            - .envs/common/scheduler.env
+        image: puckel/docker-airflow:1.10.0-4
+        restart: always
+        depends_on:
+            - webserver
+        volumes:
+            - ./dags:${AIRFLOW_HOME}/dags
+            - ./logs:${AIRFLOW_HOME}/logs
+        command: scheduler
+
+    worker:
+        env_file:
+            - .env
+            - .envs/common/airflow.env
+            - .envs/common/mongo.env
+        build:
+            context: .
+            dockerfile: ./compose/worker-local/Dockerfile
+            args:
+                AIRFLOW_HOME: ${AIRFLOW_HOME}
+        restart: always
+        depends_on:
+            - scheduler
+        volumes:
+            - ./dags:${AIRFLOW_HOME}/dags
+            - ./logs:${AIRFLOW_HOME}/logs
+            - ./submodules:${AIRFLOW_HOME}/submodules
+            - crawl_data:/tmp
+        command: worker -q aws
