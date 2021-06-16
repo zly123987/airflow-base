@@ -1,0 +1,9 @@
+# Airflow requirements not included in base image
+sqlalchemy # https://github.com/puckel/docker-airflow/issues/147
+
+# For adding users to the web UI with password protection
+Flask-Bcrypt==0.7.1
+
+
+# For Google Auth
+Flask-OAuthlib==0.9.5
