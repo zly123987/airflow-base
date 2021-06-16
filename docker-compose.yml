@@ -23,7 +23,7 @@ services:
         volumes:
             - postgres_data_local:/var/lib/postgresql/data
         ports:
-            - "5433:5432"
+            - "5442:5432"
 
     webserver:
         container_name: 'webserver_demo'    
@@ -40,7 +40,7 @@ services:
             - ./dags:${AIRFLOW_HOME}/dags
             - ./logs:${AIRFLOW_HOME}/logs
         ports:
-            - "8082:8080"
+            - "8080:8080"
         command: webserver
         healthcheck:
             test: ["CMD-SHELL", "[ -f /usr/common/airflow/airflow-webserver.pid ]"]
@@ -52,7 +52,7 @@ services:
         container_name: 'flower_demo'    
         env_file:
             - .envs/common/flower.env
-        image: puckel/docker-airflow:1.10.0-4
+        image: puckel/docker-airflow:1.10.9
         restart: always
         depends_on:
             - redis
@@ -65,7 +65,7 @@ services:
         env_file:
             - .envs/common/airflow.env
             - .envs/common/scheduler.env
-        image: puckel/docker-airflow:1.10.0-4
+        image: puckel/docker-airflow:1.10.9
         restart: always
         depends_on:
             - webserver
