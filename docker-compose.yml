@@ -8,11 +8,13 @@ volumes:
 
 services:
     redis:
+        container_name: 'redis_demo'
         image: redis:3.2.7
         ports:
             - "6379:6379"
 
     postgres:
+        container_name: 'postgres_demo'
         image: postgres:9.6-alpine
         environment:
             - POSTGRES_USER=airflow
@@ -24,6 +26,7 @@ services:
             - "5433:5432"
 
     webserver:
+        container_name: 'webserver_demo'    
         env_file:
             - .envs/common/airflow.env
             - .envs/common/webserver.env
@@ -46,6 +49,7 @@ services:
             retries: 3
 
     flower:
+        container_name: 'flower_demo'    
         env_file:
             - .envs/common/flower.env
         image: puckel/docker-airflow:1.10.0-4
@@ -57,6 +61,7 @@ services:
         command: flower
 
     scheduler:
+        container_name: 'scheduler_demo'
         env_file:
             - .envs/common/airflow.env
             - .envs/common/scheduler.env
@@ -70,10 +75,10 @@ services:
         command: scheduler
 
     worker:
+        container_name: 'worker_demo'
         env_file:
             - .env
             - .envs/common/airflow.env
-            - .envs/common/mongo.env
         build:
             context: .
             dockerfile: ./compose/worker-local/Dockerfile

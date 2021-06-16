@@ -12,7 +12,7 @@ ENV AIRFLOW_HOME=$AIRFLOW_HOME
 USER root
 RUN apt-get update \
     && apt-get upgrade -y \
-    && apt-get -y install sudo \
+    && apt-get -y install sudo 
 
 RUN usermod -aG sudo airflow
 USER airflow
